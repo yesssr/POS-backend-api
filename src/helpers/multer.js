@@ -2,7 +2,7 @@ const multer = require("multer");
 const { SendError } = require("../middleware/error");
 
 const fileFilter = (req, file, cb) => {
-  const filetypes = /jpeg|jpg|png|gif/;
+  const filetypes = /jpeg|jpg|png|gif|jfif/;
   const extname = filetypes.test(file.originalname);
 
   if (extname) {
@@ -19,6 +19,7 @@ exports.uploadImage = () => {
   const upload = multer({
     fileFilter: fileFilter,
     limits: { fileSize: 5000000 },
+    storage: multer.memoryStorage(),
   });
   return upload;
 }

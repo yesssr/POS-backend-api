@@ -1,6 +1,6 @@
 const path = require("path");
 const { formValidation } = require("../middleware/auth");
-const { sendResponse, saveImage, deleteImage, getUniqNumber } = require("../utils/utils");
+const { sendResponse, saveImage, deleteImage, getUniqNumber, saveImageToCloud } = require("../utils/utils");
 const ProductService = require("../services/products");
 const { SendError } = require("../middleware/error");
 
@@ -60,8 +60,9 @@ const productControllers = {
       const filename = getUniqNumber() + "-" + req.body.name.split(" ").join("-") + "-" + image?.originalname;
       const file = imageDir + filename;
 
-      await saveImage(file, image?.buffer);
-      req.body.photo = filename;
+      // await saveImage(file, image?.buffer);
+      const link = await saveImageToCloud(image?.buffer);
+      req.body.photo = link;
 
       const product = await ProductService.createProduct(req.body);
       sendResponse(res, 201, "successfully created product!.", product);
@@ -81,12 +82,12 @@ const productControllers = {
       req.body.stok = stok;
 
       if (image) {
-        const delFile = imageDir + req.body.photo;
-        await deleteImage(delFile);
-        const filename = getUniqNumber() + "-" + req.body.name.split(" ").join("-") + "-" + image?.originalname;
-        const file = imageDir + filename;
-        await saveImage(file, image?.buffer);
-        req.body.photo = filename;
+        // const delFile = imageDir + req.body.photo;
+        // await deleteImage(delFile);
+        // const filename = getUniqNumber() + "-" + req.body.name.split(" ").join("-") + "-" + image?.originalname;
+        // const file = imageDir + filename;
+        const link = await saveImageToCloud(image?.buffer);
+        req.body.photo = link;
       }
 
       const product = await ProductService.updateProduct(id, req.body);
@@ -104,8 +105,8 @@ const productControllers = {
       if (!product) throw new SendError("data not found!.", 404);
 
       const deleteProduct = await ProductService.deleteProduct(id);
-      const delFile = imageDir + product.photo;
-      await deleteImage(delFile);
+      // const delFile = imageDir + product.photo;
+      // await deleteImage(delFile);
 
       sendResponse(res, 200, "sucessfully deleted product!.", deleteProduct > 0 ? product : deleteProduct);
     } catch (error) {

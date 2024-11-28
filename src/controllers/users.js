@@ -97,14 +97,16 @@ const userControllers = {
       }
 
       if (image) {
-        if (req.body.photo !== "default.png") {
-          const delFile = imageDir + req.body.photo;
-          await deleteImage(delFile);
-        }
-        const filename = req.body.username + "-" + getUniqNumber() + "-" + image?.originalname;
-        const file = imageDir + filename;
-        await saveImage(file, image?.buffer);
-        req.body.photo = filename;
+        // if (req.body.photo !== "default.png") {
+        //   const delFile = imageDir + req.body.photo;
+        //   await deleteImage(delFile);
+        // }
+        // const filename = req.body.username + "-" + getUniqNumber() + "-" + image?.originalname;
+        // const file = imageDir + filename;
+        // await saveImage(file, image?.buffer);
+        // req.body.photo = filename;
+        const link = await saveImageToCloud(image?.buffer);
+        req.body.photo = link;
       }
 
       if (!req.body.password) {
@@ -127,10 +129,10 @@ const userControllers = {
       const user = await UserService.getById(id);
       const deleteUser = await UserService.deleteUser(id);
 
-      if (user && user.photo !== "default.png") {
-        const delFile = imageDir + user.photo;
-        await deleteImage(delFile);
-      }
+      // if (user && user.photo !== "default.png") {
+      //   const delFile = imageDir + user.photo;
+      //   await deleteImage(delFile);
+      // }
 
       sendResponse(res, 200, "sucessfully deleted user!.", deleteUser > 0 ? user : deleteUser);
     } catch (error) {

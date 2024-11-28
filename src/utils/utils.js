@@ -2,7 +2,9 @@ require("dotenv").config();
 const fs = require("fs");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const { default: axios } = require("axios");
 const { SendError } = require("../middleware/error");
+
 
 exports.sendResponse = (res, statusCode, message, data, token) => {
   return res.status(statusCode).json({
@@ -13,6 +15,20 @@ exports.sendResponse = (res, statusCode, message, data, token) => {
     credentials: token,
   }
   )
+}
+exports.saveImageToCloud = async (imageData) => {
+  const formData = new FormData();
+  formData.append('image', imageData.toString('base64'));
+  const response = await fetch('https://api.imgur.com/3/image', {
+    method: 'POST',
+    headers: {
+      Authorization: `Client-ID ${process.env.CLIENT_ID}`,
+    },
+    body: formData,
+  });
+
+  const result = await response.json();
+  return result.data.link;
 }
 
 exports.saveImage = (file, imageBuffer) => {
